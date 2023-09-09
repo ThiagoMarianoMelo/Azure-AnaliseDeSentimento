@@ -4,15 +4,27 @@ from azure.core.credentials import AzureKeyCredential
 from azure.ai.textanalytics import TextAnalyticsClient
 load_dotenv()
 
-endpoint = os.environ["AZURE_LANGUAGE_ENDPOINT"]
-key = os.environ["AZURE_LANGUAGE_KEY"]
+key = os.environ.get('AZURE_LANGUAGE_KEY')
+endpoint = os.environ.get('AZURE_LANGUAGE_ENDPOINT')
 
-text_analytics_client = TextAnalyticsClient(endpoint, AzureKeyCredential(key))
+def authenticate_client() -> TextAnalyticsClient:
+    credential = AzureKeyCredential(key)
+    return TextAnalyticsClient(
+            endpoint=endpoint, 
+            credential=credential)
 
-documents = [
-    {"id": "1", "language": "pt", "text": "Gostei muito do filme porque é engraçado"}
-]
 
-response = text_analytics_client.analyze_sentiment(documents)
+def sentiment_analysis(client: TextAnalyticsClient):
 
-print(response)
+    value = [
+        "A comida estava péssima, totalmente fria."
+    ]
+    
+    result = client.analyze_sentiment(value, show_opinion_mining=True)
+    
+    print(result)
+
+
+client = authenticate_client()
+          
+sentiment_analysis(client)
